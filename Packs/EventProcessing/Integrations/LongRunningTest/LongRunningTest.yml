@@ -9,7 +9,9 @@ configuration:
   required: false
   type: 8
   hidden: true
-- display: Listen Port
+- additionalinfo: Will run the EDL service on this port from within Demisto.
+    Requires a unique port for each long-running integration instance. Do not use the same port for multiple instances.
+  display: Listen Port
   name: longRunningPort
   required: true
   type: 0
@@ -37,20 +39,22 @@ script:
   commands:
   - arguments:
     - default: false
-      description: The name of whom you want to say hello to.
+      description: new counter
       isArray: false
-      name: name
+      name: cnt
       required: false
       secret: false
     deprecated: false
-    description: Hello command - prints hello to anyone
+    description: Update counter
     execution: false
-    name: helloworld-say-hello
+    name: longrunningtest-update_cnt
     outputs:
     - contextPath: hello
       description: Should be Hello **something** here
       type: String
   isfetch: false
+  longRunning: true
+  longRunningPort: true
   runonce: false
   script: '-'
   type: python

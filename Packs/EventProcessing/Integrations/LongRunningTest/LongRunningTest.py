@@ -1,14 +1,10 @@
 import json
 import dateparser
+import time
 
 import demistomock as demisto
 from CommonServerPython import *  # noqa: E402 lgtm [py/polluting-import]
 from CommonServerUserPython import *  # noqa: E402 lgtm [py/polluting-import]
-
-
-# CONSTANTS
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
 
 class Client(BaseClient):
     """
@@ -23,8 +19,24 @@ class Client(BaseClient):
 def test_module(client):
     return 'ok'
 
-def say_hello_command(client, args):
-    return client.say_hello(args.get('name', 'NoName'))
+def update_cnt(client, args):
+    new_cnt = int(args.get('cnt'), 0)
+    if not new_cnt or new_cnt <= 0:
+        raise ValueError('cnt must be a positive integer')
+
+    cnt = demisto.getIntegrationContext().get('cnt', 0)        
+    demisto.log(f'cnt was: {cnt}, new cnt is {new_cnt}')
+    demisto.setIntegrationContext({'cnt': new_cnt})
+    cnt = demisto.getIntegrationContext().get('cnt', 0)
+    demisto.log(f'now cnt is: {cnt}')    
+    return client.say_hello(str(cnt)), None, None
+
+def long_running_loop():
+    while True:
+        cnt = demisto.getIntegrationContext().get('cnt', 0)
+        demisto.updateModuleHealth(f'hi: {cnt}')
+        demisto.setIntegrationContext({'cnt': cnt+1})
+        time.sleep(10)
 
 def main():
     """
@@ -54,10 +66,10 @@ def main():
             demisto.results(result)
 
         elif demisto.command() == 'long-running-execution':
-            pass
+            long_running_loop()
 
-        elif demisto.command() == 'longrunningtest-hup':
-            return_outputs(*say_hello_command(client, demisto.args()))
+        elif demisto.command() == 'longrunningtest-update_cnt':
+            return_outputs(*update_cnt(client, demisto.args()))
 
     # Log exceptions
     except Exception as e:
