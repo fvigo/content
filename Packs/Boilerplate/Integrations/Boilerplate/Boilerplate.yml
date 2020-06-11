@@ -25,7 +25,6 @@ description: This is a Boilerplate integration for getting started.
 display: Boilerplate
 name: Boilerplate
 script:
-  commands:
   isfetch: false
   runonce: false
   script: '-'
