@@ -108,15 +108,11 @@ def get_alert_command(client: Client, args: Dict[str, Any]) -> CommandResults:
 
     alert = client.get_alert(alert_id=alert_id)
 
-    # INTEGRATION DEVELOPER TIP
-    # We want to convert the "created" time from timestamp(s) to ISO8601 as
-    # Cortex XSOAR customers and integrations use this format by default
+    # Convert the "created" time from timestamp(s) to ISO8601
     if 'created' in alert:
         created_time_ms = int(alert.get('created', '0')) * 1000
         alert['created'] = timestamp_to_datestring(created_time_ms)
 
-    # tableToMarkdown() is defined is CommonServerPython.py and is used very
-    # often to convert lists and dicts into a human readable format in markdown
     readable_output = tableToMarkdown(f'Boilerplate Alert {alert_id}', alert)
 
     return CommandResults(
