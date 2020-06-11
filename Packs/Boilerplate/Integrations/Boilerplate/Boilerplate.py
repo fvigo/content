@@ -8,7 +8,7 @@ from CommonServerUserPython import *
 
 import requests
 import traceback
-from typing import Any, Dict
+# from typing import Any, Dict
 
 # Disable insecure warnings
 requests.packages.urllib3.disable_warnings()
@@ -32,24 +32,6 @@ class Client(BaseClient):
     Most calls use _http_request() that handles proxy, SSL verification, etc.
     For this  implementation, no special attributes defined
     """
-
-    def get_alert(self, alert_id: str) -> Dict[str, Any]:
-        """Gets a specific alert by id
-
-        :type alert_id: ``str``
-        :param alert_id: id of the alert to return
-
-        :return: dict containing the alert as returned from the API
-        :rtype: ``Dict[str, Any]``
-        """
-
-        return self._http_request(
-            method='GET',
-            url_suffix=f'/get_alert_details',
-            params={
-                'alert_id': alert_id
-            }
-        )
 
 
 ''' HELPER FUNCTIONS '''
@@ -75,52 +57,13 @@ def test_module(client: Client) -> str:
     """
 
     try:
-        client.get_alert(alert_id='test')
+        pass  # do something
     except DemistoException as e:
         if 'Forbidden' in str(e):
             return 'Authorization Error: make sure API Key is correctly set'
         else:
             raise e
     return 'ok'
-
-
-def get_alert_command(client: Client, args: Dict[str, Any]) -> CommandResults:
-    """get-alert command: Returns an alert
-
-    :type client: ``Client``
-    :param Client: Client to use
-
-    :type args: ``Dict[str, Any]``
-    :param args:
-        all command arguments, usually passed from ``demisto.args()``.
-        ``args['alert_id']`` alert ID to return
-
-    :return:
-        A ``CommandResults`` object that is then passed to ``return_results``,
-        that contains an alert
-
-    :rtype: ``CommandResults``
-    """
-
-    alert_id = args.get('alert_id', None)
-    if not alert_id:
-        raise ValueError('alert_id not specified')
-
-    alert = client.get_alert(alert_id=alert_id)
-
-    # Convert the "created" time from timestamp(s) to ISO8601
-    if 'created' in alert:
-        created_time_ms = int(alert.get('created', '0')) * 1000
-        alert['created'] = timestamp_to_datestring(created_time_ms)
-
-    readable_output = tableToMarkdown(f'Boilerplate Alert {alert_id}', alert)
-
-    return CommandResults(
-        readable_output=readable_output,
-        outputs_prefix='Boilerplate.Alert',
-        outputs_key_field='alert_id',
-        outputs=alert
-    )
 
 
 ''' MAIN FUNCTION '''
@@ -162,9 +105,6 @@ def main() -> None:
             # This is the call made when pressing the integration Test button.
             result = test_module(client)
             return_results(result)
-
-        elif demisto.command() == 'boilerplate-get-alert':
-            return_results(get_alert_command(client, demisto.args()))
 
     # Log exceptions and return errors
     except Exception as e:
