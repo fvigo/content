@@ -417,6 +417,83 @@ def get_remediation_details():
         demisto.results('No Remediation Details Found')
 
 
+def redlock_add_aws_account():
+    """
+    Onboard a new AWS cloud account onto the Prisma Cloud platform.
+    """
+    account_type = demisto.args().get('account_type', None)
+    if account_type not in ['account', 'organization']:
+        raise ValueError('Account type must be one of: account, organization')
+
+    is_org = False
+    if account_type == 'organization':
+        is_org = True
+        member_role_name = demisto.args().get('member_role_name', None)
+        member_external_id = demisto.args().get('member_external_id', None)
+        member_role_status = argToBoolean(demisto.args().get('member_role_status'))
+        if not member_role_name or not member_external_id or not member_role_status:
+            raise ValueError('Account type is organization and member information is missing')
+
+    external_id = demisto.args().get('external_id', None)
+    if not external_id:
+        raise ValueError('External ID must be provided')
+
+    account_id = demisto.args().get('account_id', None)
+    if not account_id:
+        raise ValueError('Account ID must be provided')
+
+    group_ids = argToList(demisto.args().get('group_ids'))
+    if not group_ids:
+        raise ValueError('Group IDs must be provided')
+    name = demisto.args().get('name', None)
+    if not name:
+        raise ValueError('Name must be provided')
+    role_arn = demisto.args().get('role_arn', None)
+    if not role_arn:
+        raise ValueError('Role ARN must be provided')
+
+    protection_mode = demisto.args().get('protection_mode', None)
+    if not protection_mode or protection_mode != 'MONITOR_AND_PROTECT':
+        protection_mode = "MONITOR"
+
+    payload = {
+        'accountId': account_id,
+        'enabled': True,
+        'externalId': external_id,
+        'groupIds': group_ids,
+        'name': name,
+        'roleArn': role_arn,
+        'protectionMode': protection_mode,
+        'accountType': account_type if is_org else None,
+        'memberRoleName': member_role_name if is_org else None,
+        'memberRoleStatus': member_role_status if is_org else None,
+        'memberExternalId': member_external_id if is_org else None
+    }
+
+    req('POST', 'cloud/aws', payload, None)
+
+    # TODO: handle response
+
+
+def redlock_list_account_groups():
+
+    response = req('GET', 'cloud/group', None, None)
+    if (
+        not response
+        or not isinstance(response, list)
+    ):
+        demisto.results('No results found')
+    else:
+        MD = tableToMarkdown("Account Groups", response)
+        demisto.results({
+            'Type': entryTypes['note'],
+            'ContentsFormat': formats['json'],
+            'Contents': response,
+            'EntryContext': {'Redlock.AccountGroup(val.id == obj.id)': response},
+            'HumanReadable': MD
+        })
+
+
 def redlock_search_config():
     """
     Run query in config
@@ -509,6 +586,10 @@ try:
         get_remediation_details()
     elif demisto.command() == 'redlock-search-config':
         redlock_search_config()
+    elif demisto.command() == 'redlock-list-account-groups':
+        redlock_list_account_groups()
+    elif demisto.command() == 'redlock-add-aws-account':
+        redlock_add_aws_account()
     elif demisto.command() == 'fetch-incidents':
         fetch_incidents()
     else:

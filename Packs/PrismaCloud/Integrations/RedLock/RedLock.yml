@@ -477,6 +477,92 @@ script:
     description: List the acceptable filters and values for alerts
     name: redlock-list-alert-filters
   - arguments:
+    - auto: PREDEFINED
+      description: Account type (account or organization)
+      name: account_type
+      predefined:
+      - account
+      - organization
+      required: true
+    - description: AWS account ID if standalone or Master account ID if organization
+      name: account_id
+      required: true
+    - description: External ID of the AWS account or Master account role
+      name: external_id
+      required: true
+    - description: Array contains a single account group ID to which all the current and future accounts in the org will be assigned by default
+      isArray: true
+      name: group_ids
+      required: true
+    - description: Name to be used for the Master account on the Prisma Cloud platform (must be unique)
+      name: name
+      required: true
+    - description: AWS account or Master account role ARN
+      name: role_arn
+      required: true
+    - auto: PREDEFINED
+      description: Valid values are MONITOR, MONITOR_AND_PROTECT
+      name: protection_mode
+      predefined:
+      - MONITOR
+      - MONITOR_AND_PROTECT
+      required: true
+    - description: AWS Member account role name
+      name: member_role_name
+      required: false
+    - description: AWS Member account role's external ID
+      name: member_external_id
+      required: false
+    - auto: PREDEFINED
+      description: Account ID
+      name: member_role_status
+      required: false
+      predefined:
+      - true
+      - false
+    description: Add new AWS Account
+    name: redlock-add-aws-account
+  - arguments: []
+    description: List account groups
+    name: redlock-list-account-groups
+    outputs:
+    - contextPath: Redlock.AccountGroup.accountIds
+      description: Account IDs
+      type: String
+    - contextPath: Redlock.AccountGroup.accounts.id
+      description: Account ID
+      type: String
+    - contextPath: Redlock.AccountGroup.accounts.name
+      description: Account name
+      type: String
+    - contextPath: Redlock.AccountGroup.accounts.type
+      description: Account type
+      type: String
+    - contextPath: Redlock.AccountGroup.autoCreated
+      description: Was auto created?
+      type: Boolean
+    - contextPath: Redlock.AccountGroup.description
+      description: Account Group Description
+      type: String
+    - contextPath: Redlock.AccountGroup.id
+      description: Account Group ID
+      type: String
+    - contextPath: Redlock.AccountGroup.lastModifiedBy
+      description: Last modified by
+      type: String
+    - contextPath: Redlock.AccountGroup.lastModifiedTs
+      description: Last modified timestamp
+      type: Date
+    - contextPath: Redlock.AccountGroup.name
+      description: Account Group name
+      type: String
+    - contextPath: Redlock.AccountGroup.alertRules.alertId
+      description: Alert ID
+      type: String
+    - contextPath: Redlock.AccountGroup.alertRules.alertName
+      description: Alert name
+      type: String
+  - arguments:
     - description: The alert ID for which to get remediation details.
       name: alert-id
     description: Gets remediation details for the given alert.
