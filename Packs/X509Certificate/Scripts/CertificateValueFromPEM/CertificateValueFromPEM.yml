@@ -1,0 +1,23 @@
+args:
+- default: false
+  description: The PEM String to extract the value from
+  isArray: false
+  name: input
+  required: false
+  secret: false
+comment: Extract a valid XSOAR Certificate indicator value from a PEM representation of a certificate.
+commonfields:
+  id: CertificateValueFromPEM
+  version: -1
+enabled: false
+name: CertificateValueFromPEM
+outputs: []
+script: '-'
+system: false
+tags:
+- indicator-format
+timeout: '0'
+type: python
+subtype: python3
+dockerimage: demisto/crypto:1.0.0.13944
+fromversion: 6.0.0
