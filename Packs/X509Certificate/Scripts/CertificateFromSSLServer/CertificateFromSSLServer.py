@@ -6,8 +6,14 @@ from CommonServerUserPython import *  # noqa # pylint: disable=unused-wildcard-i
 import urllib.parse
 import re
 from contextlib import contextmanager
-from M2Crypto import SSL, m2
-from typing import Dict, Any, Optional, Tuple, Iterator, List
+from collections import namedtuple
+from M2Crypto import SSL, m2, X509
+from typing import (
+    Dict, Any, Optional,
+    Tuple, Iterator, List,
+    TypedDict
+)
+from operator import itemgetter
 
 
 SCHEME_TO_DEFAULT_PORT = {
@@ -15,6 +21,14 @@ SCHEME_TO_DEFAULT_PORT = {
     'http': 80,
     'ftp': 21
 }
+
+
+SSLCertificate = TypedDict('SSLCertificate', {
+    'sha256': str,
+    'md5': str,
+    'pem': str,
+    'subject': str
+})
 
 
 ''' STANDALONE FUNCTION '''
@@ -39,14 +53,15 @@ def SSLConnection(ctx: SSL.Context) -> Iterator[SSL.Connection]:
 
 
 def get_known_protocols():
-    return [p.rsplit('_',1)[0] for p in dir(m2) if p.endswith('_method')]
+    return [p.rsplit('_', 1)[0] for p in dir(m2) if p.endswith('_method')]
 
 
 def get_hostname_and_port(address: str) -> Tuple[str, int]:
     normalized_address = address
-    if re.match(r'^[a-z][A-Z]://.*', address) is None:
+    if re.match(r'^[a-zA-Z]+:\/\/.*', address) is None:
         normalized_address = 'fake://' + address
     parsed_url = urllib.parse.urlparse(normalized_address)
+    demisto.debug(f'parsed: {parsed_url!r}')
 
     if (hostname := parsed_url.hostname) is None:
         raise ValueError('Invalid address format.')
@@ -63,7 +78,17 @@ def get_hostname_and_port(address: str) -> Tuple[str, int]:
     return hostname, port
 
 
-def get_certificates(hostname: str, port: int, sni: Optional[str], protocol: str, full_chain: bool) -> Optional[List[str]]:
+def to_ssl_certificate(certificate: X509.X509) -> SSLCertificate:
+    return {
+        'sha256': certificate.get_fingerprint(md='sha256'),
+        'md5': certificate.get_fingerprint(md='md5'),
+        'pem': certificate.as_pem().decode('ascii'),
+        'subject': certificate.get_subject().as_text()
+    }
+
+
+def get_certificates(hostname: str, port: int, sni: Optional[str],
+                     protocol: str, full_chain: bool) -> Optional[List[SSLCertificate]]:
     with SSLContext(protocol=protocol) as ctx:
         ctx.set_verify(SSL.verify_none, 0)  # no lib verification of server cert
         with SSLConnection(ctx) as ssl_connection:
@@ -76,14 +101,17 @@ def get_certificates(hostname: str, port: int, sni: Optional[str], protocol: str
             if peer_certificate is None:
                 return None
 
-            result: Set[str] = set([peer_certificate.as_pem().decode('ascii')])
+            ssl_certificate = to_ssl_certificate(peer_certificate)
+            result: Dict[str, SSLCertificate] = {ssl_certificate['sha256']: ssl_certificate}
 
             if full_chain:
                 peer_certificates = ssl_connection.get_peer_cert_chain()
                 if peer_certificates is not None:
-                    result.update([c.as_pem().decode('ascii') for c in peer_certificates])
+                    for c in peer_certificates:
+                        ssl_certificate = to_ssl_certificate(c)
+                        result[ssl_certificate['sha256']] = ssl_certificate
 
-            return sorted(list(result))
+            return sorted(list(result.values()), key=itemgetter('subject'))
 
 
 ''' COMMAND FUNCTION '''
@@ -103,7 +131,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
     except ValueError:
         sni = arg_sni
 
-    arg_protocols = argToList('protocols', 'tls,sslv23')
+    arg_protocols = argToList(args.get('protocols', 'tlsv1,sslv23'))
     protocols = []
     for ap in arg_protocols:
         pkey = ap.lower()
@@ -115,6 +143,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
 
     full_chain = argToBoolean(args.get('full_chain', 'true'))
 
+    certificates: Optional[List[SSLCertificate]]
     for proto in protocols:
         certificates = get_certificates(hostname, port, sni, proto, full_chain)
         if certificates is not None:
@@ -122,8 +151,25 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
     else:
         raise ValueError('Error retrieving the certificate.')
 
+    indicators = [
+        Common.Certificate(
+            subject_dn=c['subject'],
+            sha256=c['sha256'].lower(),
+            md5=c['md5'].lower(),
+            pem=c['pem'],
+            dbot_score=Common.DBotScore(
+                c['sha256'],
+                DBotScoreType.CERTIFICATE,
+                'X509Certificate',
+                Common.DBotScore.NONE
+        ))
+        for c in certificates
+    ]
+    readable_ouput = tableToMarkdown('Certificates', certificates, headers=['subject', 'sha256'])
+
     return CommandResults(
-        readable_output='\n'.join(certificates)
+        readable_output=readable_ouput,
+        indicators=indicators
     )
 
 
