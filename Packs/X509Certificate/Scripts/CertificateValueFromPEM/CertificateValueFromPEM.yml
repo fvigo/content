@@ -1,11 +1,11 @@
 args:
 - default: false
-  description: The PEM String to extract the value from
+  description: Certificate in PEM format.
   isArray: false
   name: input
   required: false
   secret: false
-comment: Extract a valid XSOAR Certificate indicator value from a PEM representation of a certificate.
+comment: Extract a valid XSOAR Certificate indicator value from a certificate in PEM format.
 commonfields:
   id: CertificateValueFromPEM
   version: -1

@@ -1,0 +1,48 @@
+args:
+- default: false
+  description: Server address. It can be a URL or address:port format.
+  isArray: false
+  name: address
+  required: true
+  secret: false
+- default: false
+  description: |
+    Specify servername in the request. If set to "true" the hostname is used.
+    If set to "false" servername is not specified. Any other value is used as servername.
+    Default: "true".
+  isArray: false
+  name: sni
+  required: false
+  secret: false
+- default: false
+  description: |
+    Comma separated list of SSL protocols to try. Default: tls,sslv22.
+  isArray: false
+  name: sni
+  required: false
+  secret: false
+- default: false
+  description: |
+    Save full certificate chain offered by remote server. Default: "true"
+  isArray: false
+  name: full_chain
+  required: false
+  secret: false
+  predefined:
+    - 'true'
+    - 'false'
+comment: Downloads X509 Certificate of a remote SSL server into a File Entry.
+commonfields:
+  id: CertificateFromSSLServer
+  version: -1
+enabled: false
+name: CertificateFromSSLServer
+outputs: []
+script: '-'
+system: false
+tags: []
+timeout: '0'
+type: python
+subtype: python3
+dockerimage: demisto/m2crypto:1.0.0.12410
+fromversion: 6.0.0
