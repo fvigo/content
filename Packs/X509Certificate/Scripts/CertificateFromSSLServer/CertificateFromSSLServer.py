@@ -131,7 +131,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
     except ValueError:
         sni = arg_sni
 
-    arg_protocols = argToList(args.get('protocols', 'tlsv1,sslv23'))
+    arg_protocols = argToList(args.get('protocols', 'sslv23'))
     protocols = []
     for ap in arg_protocols:
         pkey = ap.lower()
