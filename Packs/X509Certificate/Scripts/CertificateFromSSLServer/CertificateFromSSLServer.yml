@@ -16,7 +16,7 @@ args:
   secret: false
 - default: false
   description: |
-    Comma separated list of SSL protocols to try. Default: tls,sslv22.
+    Comma separated list of SSL protocols to try or "flex" for version-flexible handshake. Default: flex.
   isArray: false
   name: sni
   required: false
@@ -31,18 +31,47 @@ args:
   predefined:
     - 'true'
     - 'false'
-comment: Downloads X509 Certificate of a remote SSL server into a File Entry.
+comment: Downloads X509 Certificates of a remote SSL server.
 commonfields:
   id: CertificateFromSSLServer
   version: -1
 enabled: false
 name: CertificateFromSSLServer
-outputs: []
+outputs:
+- contextPath: Certificate.IssuerDN
+  description: The Issuer Distinguished Name of the certificate.
+  type: String
+- contextPath: Certificate.MD5
+  description: MD5 Fingerprint of the certificate in DER format.
+  type: String
+- contextPath: Certificate.PEM
+  description: Certificate in PEM format.
+  type: String
+- contextPath: Certificate.SHA256
+  description: SHA256 Fingerprint of the certificate in DER format.
+  type: String
+- contextPath: Certificate.SubjectDN
+  description: |
+    The Subject Distinguished Name of the certificate.
+    This field includes the Common Name of the certificate.
+  type: String
+- contextPath: DBotScore.Indicator
+  description: The indicator that was tested.
+  type: String
+- contextPath: DBotScore.Score
+  description: The vendor used to calculate the score.
+  type: Number
+- contextPath: DBotScore.Type
+  description: The indicator type.
+  type: String
+- contextPath: DBotScore.Vendor
+  description: The actual score.
+  type: String
 script: '-'
 system: false
 tags: []
 timeout: '0'
 type: python
 subtype: python3
-dockerimage: demisto/m2crypto:1.0.0.12410
+dockerimage: demisto/akamai:1.0.0.13142
 fromversion: 6.0.0

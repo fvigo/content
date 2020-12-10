@@ -5,9 +5,10 @@ from CommonServerUserPython import *  # noqa # pylint: disable=unused-wildcard-i
 
 import urllib.parse
 import re
-from contextlib import contextmanager
+import socket
 from collections import namedtuple
-from M2Crypto import SSL, m2, X509
+import OpenSSL.SSL
+import OpenSSL.crypto
 from typing import (
     Dict, Any, Optional,
     Tuple, Iterator, List,
@@ -23,37 +24,30 @@ SCHEME_TO_DEFAULT_PORT = {
 }
 
 
+PROTOCOL_TO_METHOD = {
+    'flex': OpenSSL.SSL.SSLv23_METHOD,  # flexible method, any protocol
+    'tlsv1': OpenSSL.SSL.TLSv1_METHOD,
+    'tlsv1_1': OpenSSL.SSL.TLSv1_1_METHOD,
+    'tlsv1_2': OpenSSL.SSL.TLSv1_2_METHOD,
+    'sslv2': OpenSSL.SSL.SSLv2_METHOD,  # really ???
+    'sslv3': OpenSSL.SSL.SSLv3_METHOD  # really ??
+}
+
+
 SSLCertificate = TypedDict('SSLCertificate', {
     'sha256': str,
     'md5': str,
     'pem': str,
-    'subject': str
+    'subject': str,
+    'issuer': str
 })
 
 
 ''' STANDALONE FUNCTION '''
 
 
-@contextmanager
-def SSLContext(protocol: str) -> Iterator[SSL.Context]:
-    context = SSL.Context(protocol=protocol, weak_crypto=True)  # we also enable weak crypto. No info is xfered.
-    try:
-        yield context
-    finally:
-        context.close()
-
-
-@contextmanager
-def SSLConnection(ctx: SSL.Context) -> Iterator[SSL.Connection]:
-    connection = SSL.Connection(ctx)
-    try:
-        yield connection
-    finally:
-        connection.close(freeBio=True)
-
-
-def get_known_protocols():
-    return [p.rsplit('_', 1)[0] for p in dir(m2) if p.endswith('_method')]
+def verify_cb(conn, cert, errnum, depth, ok):
+    return ok
 
 
 def get_hostname_and_port(address: str) -> Tuple[str, int]:
@@ -61,7 +55,6 @@ def get_hostname_and_port(address: str) -> Tuple[str, int]:
     if re.match(r'^[a-zA-Z]+:\/\/.*', address) is None:
         normalized_address = 'fake://' + address
     parsed_url = urllib.parse.urlparse(normalized_address)
-    demisto.debug(f'parsed: {parsed_url!r}')
 
     if (hostname := parsed_url.hostname) is None:
         raise ValueError('Invalid address format.')
@@ -78,40 +71,45 @@ def get_hostname_and_port(address: str) -> Tuple[str, int]:
     return hostname, port
 
 
-def to_ssl_certificate(certificate: X509.X509) -> SSLCertificate:
+def to_ssl_certificate(certificate: OpenSSL.crypto.X509) -> SSLCertificate:
     return {
-        'sha256': certificate.get_fingerprint(md='sha256'),
-        'md5': certificate.get_fingerprint(md='md5'),
-        'pem': certificate.as_pem().decode('ascii'),
-        'subject': certificate.get_subject().as_text()
+        'sha256': certificate.digest('sha256').hex(),
+        'md5': certificate.digest('md5').hex(),
+        'pem': OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate).decode('ascii'),
+        'subject': ', '.join([f'{name}={value}' for name, value in certificate.get_subject().get_components()]),
+        'issuer': ', '.join([f'{name}={value}' for name, value in certificate.get_issuer().get_components()])
     }
 
 
 def get_certificates(hostname: str, port: int, sni: Optional[str],
-                     protocol: str, full_chain: bool) -> Optional[List[SSLCertificate]]:
-    with SSLContext(protocol=protocol) as ctx:
-        ctx.set_verify(SSL.verify_none, 0)  # no lib verification of server cert
-        with SSLConnection(ctx) as ssl_connection:
-            if sni is not None:
-                ssl_connection.set_tlsext_host_name(sni)
+                     protocol: Any, full_chain: bool) -> Optional[List[SSLCertificate]]:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((hostname, port))
 
-            ssl_connection.connect((hostname, port))
+    context = OpenSSL.SSL.Context(method=protocol)
+    context.set_verify(OpenSSL.SSL.VERIFY_NONE, callback=verify_cb)
 
-            peer_certificate = ssl_connection.get_peer_cert()
-            if peer_certificate is None:
-                return None
+    connection = OpenSSL.SSL.Connection(context, socket=sock)
+    connection.set_connect_state()
+    if sni is not None:
+        connection.set_tlsext_host_name(sni.encode('utf-8'))
+    connection.do_handshake()
 
-            ssl_certificate = to_ssl_certificate(peer_certificate)
-            result: Dict[str, SSLCertificate] = {ssl_certificate['sha256']: ssl_certificate}
+    peer_certificate = connection.get_peer_certificate()
+    if peer_certificate is None:
+        return None
 
-            if full_chain:
-                peer_certificates = ssl_connection.get_peer_cert_chain()
-                if peer_certificates is not None:
-                    for c in peer_certificates:
-                        ssl_certificate = to_ssl_certificate(c)
-                        result[ssl_certificate['sha256']] = ssl_certificate
+    ssl_certificate = to_ssl_certificate(peer_certificate)
+    result: Dict[str, SSLCertificate] = {ssl_certificate['sha256']: ssl_certificate}
 
-            return sorted(list(result.values()), key=itemgetter('subject'))
+    if full_chain:
+        peer_certificates = connection.get_peer_cert_chain()
+        if peer_certificates is not None:
+            for c in peer_certificates:
+                ssl_certificate = to_ssl_certificate(c)
+                result[ssl_certificate['sha256']] = ssl_certificate
+
+    return sorted(list(result.values()), key=itemgetter('subject'))
 
 
 ''' COMMAND FUNCTION '''
@@ -131,13 +129,13 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
     except ValueError:
         sni = arg_sni
 
-    arg_protocols = argToList(args.get('protocols', 'sslv23'))
+    arg_protocols = argToList(args.get('protocols', 'flex'))
     protocols = []
     for ap in arg_protocols:
-        pkey = ap.lower()
-        if not hasattr(m2, f'{pkey}_method'):
-            raise ValueError(f'Unknown SSL protocol: {ap}. Known protocols: {get_known_protocols()}')
-        protocols.append(pkey)
+        method = PROTOCOL_TO_METHOD.get(ap.lower())
+        if method is None:
+            raise ValueError(f'Unknown SSL protocol: {ap}. Known protocols: {", ".join(list(PROTOCOL_TO_METHOD.keys()))}')
+        protocols.append(method)
     if len(protocols) == 0:
         raise ValueError('No protocols specified.')
 
@@ -154,6 +152,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
     indicators = [
         Common.Certificate(
             subject_dn=c['subject'],
+            issuer_dn=c['issuer'],
             sha256=c['sha256'].lower(),
             md5=c['md5'].lower(),
             pem=c['pem'],
@@ -165,7 +164,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
         ))
         for c in certificates
     ]
-    readable_ouput = tableToMarkdown('Certificates', certificates, headers=['subject', 'sha256'])
+    readable_ouput = tableToMarkdown('Certificates', certificates, headers=['subject', 'issuer', 'sha256'])
 
     return CommandResults(
         readable_output=readable_ouput,
