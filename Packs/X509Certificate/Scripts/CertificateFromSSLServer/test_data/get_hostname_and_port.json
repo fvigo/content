@@ -1,0 +1,10 @@
+[
+    ["pan.dev:443", ["pan.dev", 443, null, null]],
+    ["ftp://ftp.japan.com", ["ftp.japan.com", 21, null, null]],
+    ["https://demisto.pan.dev/inexistentpage", ["demisto.pan.dev", 443, null, null]],
+    ["http://www.example.com:8888/test", ["www.example.com", 8888, null, null]],
+    ["test://www.example.com:210", ["www.example.com", 210, null, null]],
+    ["http://username:password@www.example.com:210", ["www.example.com", 210, "username", "password"]],
+    ["hostnameonly", null],
+    ["test://www.example.com", null]
+]

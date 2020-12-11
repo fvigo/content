@@ -28,9 +28,18 @@ args:
   name: full_chain
   required: false
   secret: false
+  auto: PREDEFINED
   predefined:
     - 'true'
     - 'false'
+- default: false
+  description: |
+    Use proxy. Address of the HTTP proxy to use to reach the SSL server.
+    Supports http URL and address:port format. Default: No proxy.
+  isArray: false
+  name: proxy
+  required: false
+  secret: false
 comment: Downloads X509 Certificates of a remote SSL server.
 commonfields:
   id: CertificateFromSSLServer
