@@ -1,6 +1,7 @@
 from CommonServerPython import *  # noqa # pylint: disable=unused-wildcard-import
 import demistomock as demisto
 
+import traceback
 import cryptography.x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA256
