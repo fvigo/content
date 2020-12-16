@@ -86,7 +86,7 @@ def to_ssl_certificate(certificate: OpenSSL.crypto.X509) -> SSLCertificate:
     }
 
 
-def proxy_tunnel(proxy: Tuple[str, int, Optional[str], Optional[str]], hostname: str, port: int, ) -> socket.SocketType:
+def proxy_tunnel(proxy: Tuple[str, int, Optional[str], Optional[str]], hostname: str, port: int) -> socket.SocketType:
     http_conn = http.client.HTTPConnection(host=proxy[0], port=proxy[1])
     http_conn.request("CONNECT", f'{hostname}:{port}', headers={"Host": f'{hostname}:{port}'})
     response: http.client.HTTPResponse = http_conn.getresponse()
