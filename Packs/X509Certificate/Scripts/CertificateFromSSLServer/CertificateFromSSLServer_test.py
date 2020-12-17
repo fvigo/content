@@ -38,16 +38,21 @@ def test_proxy_tunnel(mocker):
     from CertificateFromSSLServer import proxy_tunnel
     from http.client import PROXY_AUTHENTICATION_REQUIRED, OK
 
+    last_http_conn_mock_instance = None
+
     class HTTPResponseMock:
         def __init__(self, status):
             self.status = status
 
     class HTTPConnectionMock:
         def __init__(self, host, port):
+            nonlocal last_http_conn_mock_instance
+
             self.sock = "fake-sock"
             self.host = host
             self.port = port
             self.requests = []
+            last_http_conn_mock_instance = self
 
         def request(self, method, arg, headers):
             self.requests.append((
@@ -63,9 +68,21 @@ def test_proxy_tunnel(mocker):
 
             return HTTPResponseMock(OK)
 
-    http_con_mock = mocker.patch('CertificateFromSSLServer.http.client.HTTPConnection')
-    http_con_mock.return_value = 
+    mocker.patch('CertificateFromSSLServer.http.client.HTTPConnection', side_effect=HTTPConnectionMock)
+
     result = proxy_tunnel(['no-auth-proxy', 8443, None, None], 'demisto.pan.dev', 443)
     assert result == 'fake-sock'
-    assert 
+    assert last_http_conn_mock_instance != None
+    assert last_http_conn_mock_instance.host == 'no-auth-proxy'
+    assert last_http_conn_mock_instance.port == 8443
+    assert len(last_http_conn_mock_instance.requests) == 1
+    assert last_http_conn_mock_instance.requests[0] == ('CONNECT', 'demisto.pan.dev:443', {"Host": "demisto.pan.dev:443"})
 
+    last_http_conn_mock_instance = None
+
+    result = proxy_tunnel(['auth-proxy', 8443, None, None], 'demisto.pan.dev', 443)
+    assert result == 'fake-sock'
+    assert last_http_conn_mock_instance != None
+    assert last_http_conn_mock_instance.host == 'no-auth-proxy'
+    assert last_http_conn_mock_instance.port == 8443
+    assert len(last_http_conn_mock_instance.requests) == 1
