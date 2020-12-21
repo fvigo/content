@@ -1,0 +1,40 @@
+{
+    "Contents": null,
+    "ContentsFormat": "json",
+    "EntryContext": {
+        "Certificate(val.MD5 && val.MD5 == obj.MD5 || val.SHA1 && val.SHA1 == obj.SHA1 || val.SHA256 && val.SHA256 == obj.SHA256 || val.SHA512 && val.SHA512 == obj.SHA512)": [
+            {
+                "IssuerDN": "C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA",
+                "MD5": "d25e06796008e53299e7305381d908ba",
+                "PEM": "-----BEGIN CERTIFICATE-----\nMIIFZDCCA0ygAwIBAgIIF4qyqzEgD3MwDQYJKoZIhvcNAQELBQAwSDELMAkGA1UE\nBhMCSVQxCzAJBgNVBAgTAlJFMRIwEAYDVQQHEwlDb2RlbW9uZG8xGDAWBgNVBAMT\nD1NTTEZyb21TZXJ2ZXJDQTAeFw0yMDEyMjExMDE1MDBaFw0zMDEyMjExMDE1MDBa\nMEgxCzAJBgNVBAYTAklUMQswCQYDVQQIEwJSRTESMBAGA1UEBxMJQ29kZW1vbmRv\nMRgwFgYDVQQDEw9TU0xGcm9tU2VydmVyQ0EwggIiMA0GCSqGSIb3DQEBAQUAA4IC\nDwAwggIKAoICAQDTwSOuAhHhreZ32U/ytT/prpE7exuhH4P+Vw9RbyYQV1MKwWa6\naOrY7p1TYVv/TzG1SAcVAYHZKkaqgx+q/+WfeVX7AjHQHx/zw6zTV9eHaoj16oI2\nanFmhyPbd73+Iyb+/MRWCBadGpig7SyvkHUqPff2WFOf3CugFY3qQ26vtEKiQNB9\nw8LBH2vw8kh4zvPoSMM9Z5kenFxKEMY29sy9qHLVEMLBWeASxJgoE5DQt4y0S5sY\nO+BvNPNT+hWVT7kcF3Yh5+f197JsENZJOkHd2an7cpZaJnG+an68bRC5HdpWwqTG\nuxw7YB2KzD6qo5NjjePZygv5DF6HZmcYoxIO9x1XUwZlOjn1LS1ku/QDsmLM6dTw\nMAyzUqbjgSyb8RKsmgF0l/6cQGWNTdlUAS6KC5P3htGG91/WTpVKm6xjIJJQLkyQ\nv03G/ukymb1aJ13/6R4NSceDVf0WrBVn/h0HCT61kWJY02QofT3lKMCOiqfI5fr1\ntDldI3rqTHoo+Al/svVliNrRfKOsY8KcOPPYmbejD1/801p12Qt7+mOXz9oYCgTQ\n8aXjNaGmBYfOXAsfgc2nfrJwQyTEKaarhre8R2sdccF6s4GArwUL78vPr6nLP5Hn\nWo+KyAKs9CAAyvcWVLPLHIboVybnYDk6KP5ub6ojKQc8gkzTmb/UKDNLOQIDAQAB\no1IwUDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBSbYFS9guqgXelry64S+gJk\nQHqjEzALBgNVHQ8EBAMCAQYwEQYJYIZIAYb4QgEBBAQDAgAHMA0GCSqGSIb3DQEB\nCwUAA4ICAQATv8fZOXfrA1srG8oZVDCW5s2t39ZEYidSANTmN9AXA+Nok8tP76Cc\n9Zir8DuDsVmHE1dvbY1FKxbdXaul8QRiEHE+mZ6+WNMZ6dzhy1oPlLbUKxyvIDHC\nLT3a63SwlximmJLi3ny3qB3fkVqQdCX4d89PQZFbw65NIVcw1BS3s7TURahsdVhU\n2xflYjVDH5nIYcEPI7auWhE16b4phiAPtwViTUhAXHLtiW9jaMbefz53RcUazCud\nYOPlyhF6ezZLEeslfISAJRCsMHQau1dbjw45nBWX7783Lee8PgxEhHUOOA15A1k6\nzjjCNVmbXIz5qq2Qri4nBE4EWbKyHhLOvM8LaACKexT6HWL3TEjolct1DBQtrYAY\nFTBOphksaOfrS8rw5SFq5WPZ+AnjIq7uRL7kgC2Ssne5ku5pBw+eZG1LSURGadUa\njO0akCHpXFfCButv6praGPjMMpj2ihlFqJWCH/XGHHFSKHWhK03aWpMSNHnxZp3x\nl8JEr5Jx6s4wgNtU2w9icNFTVTqaeB85MtU+LrGsTjKSAEXd0W256tGld4e/4sex\nBj+XifspGrOOM3C1K/0/ksFgQfWKSCJv2QwXRCm4x6wrEfm+50m1I1VKwANf79zK\nhuwmsBW0zcDv+wNRr2GWPejpXIuza9Cifphc574xFn/b1wVrr4hEOg==\n-----END CERTIFICATE-----\n",
+                "SHA256": "24b6f49c9cb1bd43fd00d57d095f05131d7d526489c975dc3b669fd13075fa7a",
+                "SubjectDN": "C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA"
+            },
+            {
+                "IssuerDN": "C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA",
+                "MD5": "952d35025caec0b4cd7354eb38051da9",
+                "PEM": "-----BEGIN CERTIFICATE-----\nMIIDwTCCAamgAwIBAgIIWQvkhHAIQ3owDQYJKoZIhvcNAQELBQAwSDELMAkGA1UE\nBhMCSVQxCzAJBgNVBAgTAlJFMRIwEAYDVQQHEwlDb2RlbW9uZG8xGDAWBgNVBAMT\nD1NTTEZyb21TZXJ2ZXJDQTAeFw0yMDEyMjExMDE2MDBaFw0yMTEyMjExMDE2MDBa\nMEwxCzAJBgNVBAYTAklUMQswCQYDVQQIEwJSRTESMBAGA1UEBxMJQ29kZW1vbmRv\nMRwwGgYDVQQDExNTU0xGcm9tU2VydmVyU2VydmVyME4wEAYHKoZIzj0CAQYFK4EE\nACEDOgAEK8NLb+o3nJndVqvYcKPJxaTH3uAHRU9FIc5jhfkZfuewxybYZHa3Nus2\nz0fuS6s4kngS/vGGCvajgYAwfjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBS0/A8A\nwPmAqKXE8TWDIVHNVA3+8jALBgNVHQ8EBAMCA+gwEwYDVR0lBAwwCgYIKwYBBQUH\nAwEwGgYDVR0RBBMwEYIPd3d3LmV4YW1wbGUuY29tMBEGCWCGSAGG+EIBAQQEAwIG\nQDANBgkqhkiG9w0BAQsFAAOCAgEAxWk8M4+l5pIG3X7xV4PeBncWXXVWvY4YBA7A\nST2keytiDicZySTz9amwNO9hpvYht8YlyS/bXW4QKyveUy5aPE4L5x+lhNnKpiB7\n4M3ZVKyXHiKNID6BiSrwsj2BJA/uO5hNRgfju90gsgz1k5VfK1Bxp8JqR1tMxORZ\nrr7bl3+fv7tc2x2eoXgb7Jf5DHHxTXuyYNkWgewIZgzhd/T09bG4bgQAG8iIYNkD\n8RLbvsGHG9oqHYE6HQeEdENBKgJidGuUeDc6ig22ggP2lHab1plPbn3aboR0Pd5s\n8xeqZD5AYkIcZ9/eNN6oOP7bdznhD8yic5v2Ak2W7vZo0TqE///bKWDsVb8C/f6X\nvW/YxjnjIhFvv+e2ln7GRhTFKGUh58i0rswmGnM604OpmvUdLYWwHiwhiSg7o+hE\n7F4I2CLB/SsAQJ9bM94TSCOCTpc3sLba3Cvk/I7CKnFqcYDvCPoP/NaYrXePScaP\nJ0hzixJWMUih2n/YhEAyG2hzyE+y3+IXdSiCvTSxfsjjaduAcrnvsYAo8hEtXAfx\nUA0o1Est9ScKTax3k/pKEMxC5iKLCVnynlJfK98y7JiGZPn6f+zMBvH129sKR02S\nnoNPPPo2lRyR1wZNlkK6RMYV1hngehHnoiG8KQA7fuYQui3GXsokmwsj94QlIms+\nmiU7ATY=\n-----END CERTIFICATE-----\n",
+                "SHA256": "f8aed12955c059d11afcbcfa2dc8dae85046edd399b66bc5f7343d6d3beadab6",
+                "SubjectDN": "C=IT, ST=RE, L=Codemondo, CN=SSLFromServerServer"
+            }
+        ],
+        "DBotScore(val.Indicator && val.Indicator == obj.Indicator && val.Vendor == obj.Vendor && val.Type == obj.Type)": [
+            {
+                "Indicator": "24b6f49c9cb1bd43fd00d57d095f05131d7d526489c975dc3b669fd13075fa7a",
+                "Score": 0,
+                "Type": "certificate",
+                "Vendor": "X509Certificate"
+            },
+            {
+                "Indicator": "f8aed12955c059d11afcbcfa2dc8dae85046edd399b66bc5f7343d6d3beadab6",
+                "Score": 0,
+                "Type": "certificate",
+                "Vendor": "X509Certificate"
+            }
+        ]
+    },
+    "HumanReadable": "### Certificates\n|subject|issuer|sha256|\n|---|---|---|\n| C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA | C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA | 24b6f49c9cb1bd43fd00d57d095f05131d7d526489c975dc3b669fd13075fa7a |\n| C=IT, ST=RE, L=Codemondo, CN=SSLFromServerServer | C=IT, ST=RE, L=Codemondo, CN=SSLFromServerCA | f8aed12955c059d11afcbcfa2dc8dae85046edd399b66bc5f7343d6d3beadab6 |\n",
+    "IgnoreAutoExtract": true,
+    "IndicatorTimeline": [],
+    "Type": 1
+}
