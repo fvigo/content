@@ -47,7 +47,7 @@ SSLCertificate = TypedDict('SSLCertificate', {
 ''' STANDALONE FUNCTION '''
 
 
-def verify_cb(_conn, _cert, _errnum, _depth, ok):
+def verify_cb(_conn: Any, _cert: Any, _errnum: Any, _depth: Any, ok: Any) -> Any:
     return ok
 
 
@@ -78,11 +78,11 @@ def get_hostname_and_port(address: str, force_http: bool = False) -> Tuple[str, 
 
 def to_ssl_certificate(certificate: OpenSSL.crypto.X509) -> SSLCertificate:
     return {
-        'sha256': certificate.digest('sha256').hex(),
-        'md5': certificate.digest('md5').hex(),
+        'sha256': ''.join(certificate.digest('sha256').decode('ascii').split(':')).lower(),
+        'md5': ''.join(certificate.digest('md5').decode('ascii').split(':')).lower(),
         'pem': OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate).decode('ascii'),
-        'subject': ', '.join([f'{name}={value}' for name, value in certificate.get_subject().get_components()]),
-        'issuer': ', '.join([f'{name}={value}' for name, value in certificate.get_issuer().get_components()])
+        'subject': ', '.join([f'{name.decode("utf-8")}={value.decode("utf-8")}' for name, value in certificate.get_subject().get_components()]),
+        'issuer': ', '.join([f'{name.decode("utf-8")}={value.decode("utf-8")}' for name, value in certificate.get_issuer().get_components()])
     }
 
 
@@ -161,7 +161,7 @@ def certificate_from_ssl_server_command(args: Dict[str, Any]) -> CommandResults:
 
     hostname, port, username, password = get_hostname_and_port(address)
     if username is not None or password is not None:
-        demisto.log('Username and password in address are ignored')
+        demisto.debug('Username and password in address are ignored')
 
     arg_sni: str = args.get('sni', 'true')
     sni: Optional[str]
